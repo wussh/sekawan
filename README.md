@@ -1,10 +1,19 @@
-# Panduan Instalasi dan Konfigurasi Server untuk Aplikasi Laravel
+# Installation and Configuration Guide for Laravel Application Server
 
-## Langkah 1: Membuat EC2 Instance
-1. Buat EC2 Instance di AWS atau cloud provider pilihan Anda.
-2. Lakukan SSH ke instance yang telah dibuat.
+## Step 1: Create EC2 Instance
+1. Create an EC2 Instance on AWS or your preferred cloud provider.
+2. SSH into the created instance.
+### Instance Specifications
 
-## Langkah 2: Instalasi PHP, Nginx, dan MariaDB
+For this project, I'm using the following specifications for the EC2 Instance:
+
+- **OS:** Ubuntu 22.04
+- **Instance Type:** t2.micro
+- **vCPU:** 1
+- **RAM:** 1.0 GB
+- **Storage:** 1x8 GiB gp2 (General Purpose SSD)
+
+## Step 2: Install PHP, Nginx, and MariaDB
 ```bash
 #!/bin/bash
 
@@ -33,13 +42,13 @@ sudo systemctl enable nginx
 # Add UFW
 sudo ufw enable
 sudo ufw allow 22
-sudo ufw allow 80
+sudo ufw allow 'Nginx HTTP'
 
 # Create a new Nginx configuration file
 sudo nano /etc/nginx/sites-available/default
 ```
 
-**Tambahkan konfigurasi Nginx:**
+**Add Nginx configuration:**
 ```nginx
 server {
     listen 80 default_server;
@@ -62,14 +71,16 @@ server {
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
     }
 }
 ```
 
+**Restart Nginx:**
+``` sudo systemctl restart nginx ```
 
-## Langkah 4: Instalasi Composer, PHP Extensions, Node.js, dan MariaDB
+## Step 4: Install Composer, PHP Extensions, Node.js, and MariaDB
 ```bash
 # Install Composer
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -92,42 +103,42 @@ sudo apt install -y mariadb-server
 sudo mysql_secure_installation
 ```
 
-## Langkah 5: Instalasi Aplikasi Laravel
-1. Clone atau unduh repository.
-2. Masuk ke direktori proyek dan jalankan `composer install`.
-3. Buat file `.env` dengan menyalin dari `.env.example` menggunakan perintah `cp .env.example .env`.
-4. Perbarui nama dan kredensial database di file `.env`.
-5. Jalankan perintah `php artisan key:generate`.
-6. Jalankan perintah `php artisan migrate --seed`.
-7. Link direktori storage dengan perintah `php artisan storage:link`.
-8. Anda dapat membuat virtual host atau jalankan `php artisan serve` dari root proyek dan kunjungi http://127.0.0.1:8000.
+## Step 5: Install Laravel Application
+1. Git clone `https://github.com/nasirkhan/laravel-starter.git`.
+2. Navigate to the project directory and run `composer install`.
+3. Create a `.env` file by copying from `.env.example` using the command `cp .env.example .env`.
+4. Update database name and credentials in the `.env` file.
+5. Run `php artisan key:generate`.
+6. Run `php artisan migrate --seed`.
+7. Link the storage directory with the command `php artisan storage:link`.
+8. You can create a virtual host or run `php artisan serve` from the project root and visit http://127.0.0.1:8000.
 
-## Langkah 6: Uji Coba Aplikasi
-1. Buka aplikasi di browser.
-2. Lakukan registrasi user baru.
-3. Login dengan user baru.
-4. Pastikan fitur-fitur seperti menampilkan posts, categories, tags, comments, dan lainnya dapat digunakan.
+## Step 6: Test the Application
+1. Open the application in the browser.
+2. Register a new user.
+3. Log in with the newly created user.
+4. Ensure features like displaying posts, categories, tags, comments, etc., are functional.
 
-### User Default
-- User: super@admin.com
+### Default User
+- Email: super@admin.com
 - Password: secret
 
-### Menambahkan Demo Data
-Untuk menambahkan data demo, jalankan perintah berikut:
+### Adding Demo Data
+To add demo data, run the following command:
 ```bash
 php artisan starter:insert-demo-data
 ```
 
-# Konfigurasi Email menggunakan Mailtrap.io
-Untuk mengkonfigurasi layanan email pada aplikasi Laravel dan menggunakan Mailtrap.io sebagai penyedia layanan SMTP, berikut adalah langkah-langkahnya:
+# Email Configuration using Mailtrap.io
+To configure email services in your Laravel application and use Mailtrap.io as the SMTP service provider, follow these steps:
 
-1. **Buat Akun Mailtrap.io**:
-   - Buat akun di [Mailtrap.io](https://mailtrap.io/).
-   - Dapatkan informasi kredensial SMTP yang diberikan oleh Mailtrap.io.
+1. **Create a Mailtrap.io Account**:
+   - Create an account on [Mailtrap.io](https://mailtrap.io/).
+   - Obtain SMTP credential information provided by Mailtrap.io.
 
-2. **Ubah Konfigurasi .env**:
-   - Buka file `.env` pada proyek Laravel Anda.
-   - Ganti atau tambahkan konfigurasi email berikut:
+2. **Update .env Configuration**:
+   - Open the `.env` file in your Laravel project.
+   - Change or add the following email configuration:
 
     ```env
     MAIL_MAILER=smtp
@@ -140,10 +151,10 @@ Untuk mengkonfigurasi layanan email pada aplikasi Laravel dan menggunakan Mailtr
     MAIL_FROM_NAME="${APP_NAME}"
     ```
 
-    Pastikan untuk mengganti `MAIL_USERNAME` dan `MAIL_PASSWORD` dengan nilai yang sesuai yang Anda dapatkan dari Mailtrap.io.
+    Be sure to replace `MAIL_USERNAME` and `MAIL_PASSWORD` with the correct values you obtained from Mailtrap.io.
 
-3. **Simpan dan Jalankan Aplikasi**:
-   - Simpan perubahan pada file `.env`.
-   - Jalankan perintah `php artisan config:cache` untuk meng-cache konfigurasi.
+3. **Save and Run the Application**:
+   - Save changes to the `.env` file.
+   - Run the command `php artisan config:cache` to cache the configuration.
 
-Dengan konfigurasi ini, aplikasi Laravel Anda akan menggunakan Mailtrap.io sebagai penyedia layanan email untuk keperluan pengembangan dan pengujian. Pastikan untuk mengganti nilai-nilai kredensial dengan informasi yang benar dari akun Mailtrap.io Anda.
+With this configuration, your Laravel application will use Mailtrap.io as the email service provider for development and testing purposes. Make sure to replace the credential values with correct information from your Mailtrap.io account.
